@@ -2,7 +2,11 @@
 
 > ContextCore is not the agent. ContextCore is the context layer agents depend on.
 
-ContextCore is an open source, local-first contextual intelligence infrastructure. It observes permitted local activity signals across applications and, progressively, across devices, learns behavioral patterns autonomously, and orchestrates specialized AI agents — without being tied to any specific product ecosystem.
+> MCP gave agents a way to access tools. ContextCore gives agents a way to understand the user's situation.
+
+ContextCore is an open source, local-first contextual intelligence infrastructure. It turns local user activity into portable, user-owned, verifiable context for AI agents — without being tied to any specific product ecosystem.
+
+ContextCore builds on context-aware computing, semantic personal data, agent orchestration, decentralized identity, and local-first software, but focuses specifically on the missing local context layer that lets AI agents understand what the user is doing in real time.
 
 Privacy is not a feature. It is the founding principle from which every architectural decision derives.
 
