@@ -2,7 +2,7 @@
 
 > ContextCore is not the agent. ContextCore is the context layer agents depend on.
 
-ContextCore is an open source, local-first contextual intelligence infrastructure. It observes permitted local activity signals across applications and devices, learns behavioral patterns autonomously, and orchestrates specialized AI agents — without being tied to any specific product ecosystem.
+ContextCore is an open source, local-first contextual intelligence infrastructure. It observes permitted local activity signals across applications and, progressively, across devices, learns behavioral patterns autonomously, and orchestrates specialized AI agents — without being tied to any specific product ecosystem.
 
 Privacy is not a feature. It is the founding principle from which every architectural decision derives.
 
@@ -10,22 +10,18 @@ Privacy is not a feature. It is the founding principle from which every architec
 
 ## What ContextCore Is Not
 
-ContextCore is not a chatbot, not a productivity tracker, not employee surveillance software, and not a centralized data collection platform.
-
-It is a local-first contextual intelligence layer designed to let users own, verify, and reuse their behavioral context across agents, devices, and applications.
-
----
-
-## Non-goals
-
 ContextCore is not:
 
+- a chatbot,
+- a productivity tracker,
 - employee surveillance software,
 - a productivity scoring tool,
 - a keylogger,
 - a replacement for existing AI agents,
 - a centralized user data platform,
 - a blockchain data storage system.
+
+It is a local-first contextual intelligence layer designed to let users own, verify, and reuse their behavioral context across agents, devices, and applications.
 
 ---
 
@@ -35,7 +31,7 @@ ContextCore is **infrastructure**. It does not solve a specific business problem
 
 The distinction matters:
 
-- **ContextCore (infrastructure)** - observes permitted signals, learns behavioral patterns, manages the DID user profile, orchestrates agents. Agnostic to the use case.
+- **ContextCore (infrastructure)** - observes permitted signals, learns behavioral patterns, manages the W3C DID user profile, orchestrates agents. Use-case agnostic by design.
 - **Services built on ContextCore** - concrete implementations that consume the infrastructure for a specific purpose.
 
 Examples of services that could be built on top:
@@ -50,6 +46,8 @@ This is the same distinction as Internet vs. web applications, Linux vs. enterpr
 
 ## The Problem
 
+Current AI agents are powerful, but they are context-blind unless the user manually explains what they are doing.
+
 There is no open, general-purpose infrastructure layer designed to model individual user context, learn behavioral patterns, and orchestrate agents across platforms without being tied to a specific product ecosystem.
 
 And no open infrastructure exists that allows anyone to build that kind of context-aware service without starting from scratch.
@@ -58,9 +56,9 @@ And no open infrastructure exists that allows anyone to build that kind of conte
 
 ## What ContextCore Provides
 
-ContextCore runs silently in the background. It observes permitted local activity signals across applications and devices, classifies them into behavioral contexts, and routes to the appropriate specialized agent automatically.
+ContextCore runs locally in the background with user-granted permissions. It observes permitted local activity signals across applications and, progressively, across devices, classifies them into behavioral contexts, and routes to the appropriate specialized agent automatically.
 
-It does not respond to commands. It understands situations.
+It does not depend on commands. It understands situations.
 
 ---
 
@@ -84,13 +82,13 @@ It does not respond to commands. It understands situations.
      [Adaptive learning engine]
     pattern confirmation + confidence
               ↓
-  [Synchronized user profile - DID W3C]
+  [Synchronized user profile - W3C DID]
               ↓
     [Agent orchestration layer]
      OpenCode + custom agents
-              ↓
-       [Blockchain layer]
-    signed proofs + hashes + permissions
+
+[Blockchain trust layer]
+ identity + permissions + signed proofs + hashes
 ```
 
 ---
@@ -177,16 +175,16 @@ Receives confirmed context and routes to the appropriate specialized agent. The 
 
 ---
 
-## Blockchain Layer
+## Blockchain Trust Layer
 
-Blockchain-native architecture. ContextCore is designed from day one around decentralized identity, verifiable permissions, and cryptographic integrity. Active modules generate signed proofs and hashes that can be anchored on-chain, while all behavioral data remains encrypted off-chain.
+ContextCore is designed from day one around decentralized identity, verifiable permissions, and cryptographic integrity. Active modules generate signed proofs and hashes that can be anchored on-chain, while all behavioral data remains encrypted off-chain.
 
 The blockchain layer is part of the core architecture from day one, even if its concrete implementation is introduced progressively during Phase C.
 
 > The blockchain does not contain the context. It contains the proof that the context exists, belongs to the user, and has not been tampered with.
 
 ### On-chain (public, verifiable, non-sensitive)
-- Decentralized user identity (DID W3C)
+- Decentralized user identity (W3C DID)
 - Authorized device registry
 - Permissions between user, devices, and agents
 - Cryptographic integrity hashes of contextual snapshots
@@ -226,17 +224,17 @@ The first validation target is a local desktop prototype that:
 
 **Infrastructure over product.** ContextCore is a platform others build on. Use cases are external implementations, not core features.
 
-**Privacy first.** All signal processing happens locally. Only permitted signals are observed. The user profile is owned entirely by the user via DID. No sensitive data leaves the device unencrypted.
+**Privacy first.** All signal processing happens locally. Only permitted signals are observed. The user profile is owned entirely by the user via W3C DID. No sensitive data leaves the device unencrypted.
 
 **Local-first.** The system is fully functional without any external connection. Cloud and blockchain features are additive, never required for core operation.
 
 **Abstracted dependencies.** The core logic does not depend on any specific platform, AI model, or agent. Each is a replaceable implementation behind a common interface.
 
-**Context over commands.** The system acts based on what the user is doing, not what they ask. No commands - only detected situations.
+**Context over commands.** The system acts based on what the user is doing, not what they ask. It does not depend on commands. It understands situations.
 
 **Composable agents.** Any specialized agent plugs in by mapping a pattern to an action. The architecture does not change as it scales.
 
-**Blockchain-native architecture.** Designed around decentralized identity and cryptographic integrity from the start. Only signed proofs and hashes are anchored on-chain. Behavioral data never touches the chain.
+**Verifiable by design.** Designed around decentralized identity, permissioned access, and cryptographic integrity. Only signed proofs and hashes are anchored on-chain. Behavioral data never touches the chain.
 
 ---
 
@@ -247,7 +245,7 @@ Phase A - Architecture design        [done]
   A1  Normalized signal
   A2  Context classifier
   A3  Adaptive learning engine
-  A4  User profile with DID W3C
+  A4  User profile with W3C DID
   A5  Agent orchestrator
 
 Phase B - Local validation
@@ -256,7 +254,7 @@ Phase B - Local validation
   B3  Functional output validation per layer
 
 Phase C - Blockchain implementation
-  C1  DID identity implementation
+  C1  W3C DID identity implementation
   C2  On-chain signed proofs and hashes
   C3  Off-chain encrypted storage
   C4  Cross-device sync
@@ -274,7 +272,7 @@ Phase C - Blockchain implementation
    /macos            - Accessibility API
    /linux            - X11 / Wayland
    /browser          - Extension with active tab permissions
-/user-profile        - local storage + cross-device sync via DID
+/user-profile        - local storage + cross-device sync via W3C DID
 /integrations
    /opencode         - coding context agent
    /custom           - extensible agent interface
