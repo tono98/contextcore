@@ -1,135 +1,234 @@
 # ContextCore
 
-> An open source adaptive ambient agent that detects user context in real time and orchestrates specialized AI agents across devices.
+> Decentralized contextual intelligence infrastructure.
 
----
-
-## What is ContextCore?
-
-ContextCore is a cross-platform background agent that observes user activity signals in real time, classifies them into behavioral contexts, and routes to specialized AI agents based on what the user is doing — without requiring any manual command.
-
-Unlike traditional AI assistants that wait to be invoked, ContextCore is **proactive, context-aware, and adaptive**. It learns from the user's behavior over time, autodiscovers their personal working modes, and synchronizes a user profile across all devices.
+An open source adaptive ambient agent that observes user behavior in real time, autonomously discovers behavioral contexts, and orchestrates specialized AI agents across all devices — without requiring any manual command.
 
 ---
 
 ## The Problem
 
-Ambient agents today are built for enterprise infrastructure: monitoring servers, pipelines, and systems. No one has solved the problem at the **individual user level** — a desktop agent that understands *you*, learns *your* patterns, and connects the right AI tool at the right moment without interrupting your flow.
+Ambient agents today are built for enterprise infrastructure: monitoring servers, pipelines, and cloud systems. The problem at the **individual user level** remains unsolved. No system exists that understands how *you* work, learns *your* specific patterns, and connects the right AI tool at the right moment — without interrupting your flow or asking you anything.
 
 ---
 
-## How It Works
+## What ContextCore Does
 
-```
-[Windows / macOS / Linux / Browser]
-           ↓
-[Platform-specific signal adapters]
-           ↓
-     [Signal normalizer]
-           ↓
-  [Temporal filtering engine]
-   (confidence scoring + window)
-           ↓
-  [Adaptive context classifier]
-   (self-defined modes + learning)
-           ↓
-    [Synchronized user profile]
-           ↓
- [Agent orchestration layer]
-  (OpenCode, custom agents, etc.)
-```
+ContextCore runs silently in the background on your desktop. It observes what you are doing across all your applications and devices, classifies your activity into behavioral contexts, and routes to the right specialized agent automatically.
 
-### Signal capture (per platform)
-- Active application
-- Browser URL
-- Open files
-- Keyboard input patterns
-- Mouse activity
-
-### Temporal filtering
-Rather than reacting to a single action, ContextCore observes a time window and scores context candidates before committing:
-
-```
-detected signals
-      ↓
-[time window observation]
-      ↓
-context candidates with confidence score
-  e.g. coding 78% / research 15% / other 7%
-      ↓
-threshold reached? → name it, study it, store it
-not reached?       → keep observing
-```
-
-### Context model (user profile)
-Each confirmed context is stored as:
-
-```json
-{
-  "id": "ctx_unique_id",
-  "name": "deep-coding-session",
-  "category": "development",
-  "actions": {
-    "types": ["keystroke", "file-edit", "terminal-command"],
-    "count": 142,
-    "interval_seconds": 1800
-  }
-}
-```
-
-### Adaptive learning
-ContextCore does not use a fixed list of contexts. It **discovers and names them** based on recurring patterns in the user's behavior. Over time it learns:
-- What signals trigger each context
-- How long each context lasts
-- When it typically occurs during the day
-- How it relates to other contexts
+It does not respond to commands. It understands situations.
 
 ---
 
 ## Architecture
 
 ```
-/agent-core          ← classifier, temporal filter, learning engine
-/adapters
-   /windows          ← Win32 API, UI Automation
-   /macos            ← Accessibility API
-   /linux            ← X11 / Wayland
-   /browser          ← Extension with active tab permissions
-/user-profile        ← local storage + cross-device sync
-/integrations
-   /opencode         ← coding context agent
-   /custom           ← extensible agent interface
-/docs
+[Windows / macOS / Linux / Browser]
+              ↓
+ [Platform-specific signal adapters]
+              ↓
+      [Signal normalizer]
+              ↓
+   [Temporal filtering engine]
+    confidence scoring + time window
+              ↓
+   [Adaptive context classifier]
+    self-defined modes + learning
+              ↓
+     [Adaptive learning engine]
+    pattern confirmation + confidence
+              ↓
+  [Synchronized user profile - DID W3C]
+              ↓
+    [Agent orchestration layer]
+     OpenCode + custom agents
+              ↓
+       [Blockchain layer]
+    identity + hashes + permissions
 ```
 
-Each platform adapter normalizes signals into a common format before passing them to the core. The classifier does not know — and does not care — which platform the signals came from.
+---
+
+## Core Components
+
+### A1 - Normalized Signal
+
+Each platform adapter captures raw OS events and normalizes them into a common format before passing them to the classifier. The AI generates a brief description of what just happened.
+
+```json
+{
+  "action": "window-change",
+  "type": "navigation",
+  "timestamp": "2026-05-01T10:32:00Z",
+  "description": "User switched to VSCode after browsing GitHub"
+}
+```
+
+### A2 - Context Classifier
+
+Receives a continuous stream of normalized signals and groups them into behavioral patterns using a temporal filtering window. Rather than reacting to a single action, it scores context candidates before committing.
+
+```json
+{
+  "pattern_id": "ptn_unique_id",
+  "sequence": ["window-change", "file-open", "keystroke-burst"],
+  "confidence": null,
+  "derived_from": ["ptn_previous_id"],
+  "occurrences": 0
+}
+```
+
+`confidence` starts as `null`. The learning engine assigns it based on observed evidence. Until a confidence threshold is reached, the pattern exists but does not trigger any agent.
+
+### A3 - Adaptive Learning Engine
+
+Observes confirmed patterns over time and decides whether they are real or noise. Uses temporal data to evaluate frequency, duration, and consistency.
+
+```json
+{
+  "pattern_id": "ptn_unique_id",
+  "action_id": "act_unique_id",
+  "datetime_start": "2026-05-01T10:32:00Z",
+  "datetime_end": "2026-05-01T12:15:00Z"
+}
+```
+
+From these four fields, auxiliary queries derive: duration, frequency, time-of-day distribution, and behavioral consistency. The engine assigns confidence based on this evidence.
+
+ContextCore does not use a fixed list of contexts. It **discovers and names them autonomously** based on recurring patterns in each user's behavior.
+
+### A4 - User Profile
+
+Each user is identified by a **W3C Decentralized Identifier (DID)**, independent of any central server or identity provider. The profile is portable across devices by design.
+
+```json
+{
+  "did": "did:example:123abc",
+  "created_at": "2026-05-01T00:00:00Z",
+  "devices": ["device_id_1", "device_id_2"],
+  "contexts": ["ptn_id_1", "ptn_id_2"],
+  "profile_hash": "verifiable_hash_on_chain"
+}
+```
+
+### A5 - Agent Orchestrator
+
+Receives confirmed context from the classifier and routes to the appropriate specialized agent. The mapping between patterns and agents is configurable and extensible.
+
+```json
+{
+  "pattern_id": "ptn_unique_id",
+  "confidence": 0.78,
+  "sequence": ["window-change", "file-open", "keystroke-burst"],
+  "agent": "opencode",
+  "action": "suggest",
+  "parameters": {
+    "context": "coding-session",
+    "mode": "proactive"
+  }
+}
+```
+
+Any specialized agent can be added by mapping a pattern to an action. The orchestration logic does not change.
+
+---
+
+## Blockchain Layer
+
+ContextCore uses blockchain as a **transversal infrastructure layer active from module one**, not as a future feature. The principle is simple:
+
+> The blockchain does not contain the context. It contains the proof that the context exists, belongs to the user, and has not been tampered with.
+
+### On-chain (public, verifiable, non-sensitive)
+- Decentralized user identity (DID W3C)
+- Authorized device registry
+- Permissions between user, devices, and agents
+- Integrity hashes of encrypted contextual data
+- Profile version and snapshot registry
+- Access revocation
+- Tokens and access credentials
+- Economic model / tokenization
+
+### Off-chain (private, encrypted, user-owned)
+- Behavioral events
+- Activity history
+- Contextual profile
+- Embeddings
+- Preferences
+- Relationships between projects, files, apps, and agents
+- Adaptive memory
+- Pattern usage logs
+
+All off-chain data is: **encrypted, signed, versioned, cross-device syncable, and verifiable via on-chain hashes.**
 
 ---
 
 ## Design Principles
 
-**Abstracted dependencies.** The core logic does not depend on any specific platform, model, or agent. Each is a replaceable implementation behind a common interface.
+**Abstracted dependencies.** The core logic does not depend on any specific platform, AI model, or agent. Each is a replaceable implementation behind a common interface.
 
 **Context over commands.** The agent acts based on what the user is doing, not what they ask it to do.
 
-**Privacy first.** All signal processing happens locally. The user profile is owned by the user.
+**Privacy first.** All signal processing happens locally. The user profile is owned entirely by the user via DID.
 
-**Composable agents.** ContextCore is an orchestration layer. Any specialized agent can be plugged in as a target for a detected context.
+**Composable agents.** ContextCore is an orchestration layer. Any specialized agent plugs in as a target for a detected context.
+
+**Native blockchain from day one.** Each active module writes confirmed patterns to the blockchain. Data accumulates while the project grows, enabling federated distributed learning when advanced learning stages are reached.
+
+---
+
+## Project Phases
+
+```
+Phase A - Architecture design        [in progress]
+  A1  Normalized signal              [done]
+  A2  Context classifier             [done]
+  A3  Adaptive learning engine       [done]
+  A4  User profile with DID W3C      [done]
+  A5  Agent orchestrator             [done]
+
+Phase B - Local validation
+  B1  Database schema
+  B2  Simulated data
+  B3  Functional output validation per layer
+
+Phase C - Blockchain integration
+  C1  DID identity implementation
+  C2  On-chain registry
+  C3  Off-chain encrypted storage
+  C4  Cross-device sync
+  C5  Tokenization model
+```
+
+---
+
+## Repository Structure
+
+```
+/agent-core          - classifier, temporal filter, learning engine
+/adapters
+   /windows          - Win32 API, UI Automation
+   /macos            - Accessibility API
+   /linux            - X11 / Wayland
+   /browser          - Extension with active tab permissions
+/user-profile        - local storage + cross-device sync via DID
+/integrations
+   /opencode         - coding context agent
+   /custom           - extensible agent interface
+/docs
+```
 
 ---
 
 ## Status
 
-Early design phase. Contributions welcome — especially platform adapter implementations.
+Architecture design phase. Contributions welcome, especially platform adapter implementations.
 
 ---
 
-## Related concepts
+## Related Concepts
 
-- Ambient Agents
-- Context-aware computing
-- Agentic AI orchestration
-- Adaptive user modeling
+Ambient Agents - Context-aware computing - Agentic AI orchestration - Adaptive user modeling - Decentralized identity - Federated learning
 
 ---
 
