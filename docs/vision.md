@@ -162,3 +162,171 @@ As the project matures, ContextCore's blockchain trust layer enables a federated
 
 This is not blockchain for its own sake. It is the only architecture coherent with the founding principle: the user owns their context, always.
 
+
+
+\---
+
+
+
+\## Database Architecture Decision - Phase B1
+
+
+
+\### The Core Challenge
+
+
+
+Capturing OS telemetry generates a massive volume of small writes per second. At the same time, the learning engine requires complex temporal analytical queries. These two workloads are architecturally incompatible in a single database engine.
+
+
+
+This is the classic OLTP vs OLAP conflict, solved in enterprise environments by separating engines. ContextCore solves it locally with a two-tier architecture.
+
+
+
+\### The Two-Tier Local Architecture
+
+
+
+```
+
+\[OS signals - real time]
+
+&#x20;       ↓
+
+\[SQLite - OLTP buffer]
+
+&#x20; blind, fast, ephemeral
+
+&#x20; WAL mode activated
+
+&#x20;       ↓
+
+\[Micro-ETL - opportunistic transfer]
+
+&#x20; triggers: time OR volume OR idle CPU
+
+&#x20;       ↓
+
+\[DuckDB - OLAP analytical store]
+
+&#x20; columnar, compressed, temporal queries
+
+&#x20;       ↓
+
+\[Adaptive learning engine]
+
+```
+
+
+
+\### Tier 1 - SQLite as Transactional Buffer
+
+
+
+SQLite's only role is to be a blind, ultra-fast write sink.
+
+
+
+\- WAL mode (PRAGMA journal\_mode = WAL) guarantees write concurrency with zero blocking
+
+\- No complex queries ever run against it - only INSERTs
+
+\- Ephemeral by design: only retains unprocessed events from the last minutes or hours
+
+\- Once transferred to DuckDB, records are purged via bulk DELETE
+
+\- Always small, always fast, disk never saturates
+
+
+
+\### Tier 2 - DuckDB as Analytical Brain
+
+
+
+DuckDB processes what SQLite captures.
+
+
+
+\- Columnar storage: reads by column, not row - temporal window queries execute in milliseconds
+
+\- Vectorized analysis: "how many times did this user open VSCode right after GitHub in the last week?" resolves instantly
+
+\- Extreme compression: repetitive data (app names, action types) compresses naturally - millions of events in a lightweight file
+
+\- Complete isolation: if the learning engine saturates calculating a complex pattern, signal capture in SQLite is never interrupted
+
+
+
+\### Tier 3 - The Opportunistic Micro-ETL
+
+
+
+The transfer process fires on a triple OR condition:
+
+
+
+```
+
+trigger transfer if:
+
+&#x20; elapsed time >= 5 minutes
+
+&#x20; OR records in SQLite >= 10,000
+
+&#x20; OR OS reports idle CPU + no keyboard/mouse input
+
+```
+
+
+
+\*\*Why triple condition:\*\*
+
+
+
+\- Time alone: an intense work session can accumulate 50,000 records in 5 minutes, saturating the buffer before the timer fires
+
+\- Volume alone: during inactivity, 10,000 records may take hours - the learning engine works with stale data
+
+\- Combined: the system responds to the user's actual reality. Intense session triggers by volume. Quiet session triggers by time. Idle moment triggers by CPU availability.
+
+
+
+\*\*The third trigger - protecting the user:\*\*
+
+
+
+The idle CPU trigger is implemented at zero performance cost by querying native OS APIs - Windows idle detection functions combined with basic CPU metrics. The orchestrator does not spend energy calculating whether to run. It simply acts when the system gives it room to breathe.
+
+
+
+\*\*This makes the micro-ETL a true ghost in the system.\*\*
+
+
+
+\### Why This Matters
+
+
+
+This triple-condition heuristic is the architectural expression of the founding principle:
+
+
+
+> The system adapts to the user. Not the other way around.
+
+
+
+When a professional is in the middle of a critical process - crossing data between Excel and Power BI, running workflows in Dynamics 365, executing a financial close - the last thing they need is an invisible infrastructure tool deciding to saturate the disk because a rigid timer fired.
+
+
+
+\- Protects the tool: volume trigger keeps SQLite fast and ephemeral
+
+\- Protects the context: time trigger ensures DuckDB never works with stale patterns
+
+\- Protects the user: idle trigger makes the micro-ETL invisible in practice
+
+
+
+This topology has the robustness of a large enterprise data ecosystem, packaged with the elegance required to operate silently in a local environment.
+
